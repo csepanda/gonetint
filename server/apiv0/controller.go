@@ -7,9 +7,7 @@ import (
     "github.com/gorilla/mux"
 )
 
-const (
-    VERSION = "v0.1"
-)
+const VERSION = "v0.1"
 
 type ApiController struct {
     root *mux.Router
@@ -22,7 +20,7 @@ func (api *ApiController) GetVersion() string {
 func (api *ApiController) Init(router *mux.Router) error {
     api.root = router.PathPrefix("/" + VERSION).Subrouter()
     api.root.Path("/interfaces").HandlerFunc(interfaceList)
-
+    api.root.Path("/interface/{name}").HandlerFunc(interfaceDetails)
     return nil
 }
 
@@ -42,7 +40,30 @@ func interfaceList(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func interfaceDetails(w http.ResponseWriter, r *http.Request) {
+    name := mux.Vars(r)["name"]
+    if name == "" {
+        fmt.Println("name")
+        responseError(serverError("wrong routing"), w)
+        return
     }
+
+    details, err := getInterfaceDetails(name)
+    if err != nil {
+        fmt.Println("details")
+        responseError(err, w)
+        return
+    }
+
+    jsonStr, e := json.Marshal(details)
+    if e != nil {
+        fmt.Println("json")
+        responseError(e, w)
+    } else {
+        w.Write(jsonStr)
+    }
+}
+
 func responseError(e error, w http.ResponseWriter) {
     if serviceErr, ok := e.(*serviceError); ok {
         switch serviceErr.errType {
