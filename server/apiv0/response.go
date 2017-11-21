@@ -5,7 +5,7 @@ type interfaceResponse struct {
     name           string
     hw_address     string
     inet_address []string
-    MTU            string
+    MTU            int
 }
 
 // list of network interfaces list
