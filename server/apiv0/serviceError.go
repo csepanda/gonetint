@@ -15,10 +15,10 @@ func (e *serviceError) Error() string {
     return e.message
 }
 
-func serverError(msg string) *serviceError {
+func serverError(msg string) error {
     return &serviceError{SERVER_SIDE_ERROR, msg}
 }
 
-func clientError(msg string) *serviceError {
+func clientError(msg string) error {
     return &serviceError{CLIENT_REQUEST_ERROR, msg}
 }
