@@ -29,6 +29,7 @@ func getInterfaceDetails(name string) (interfaceResponse, error) {
     for _, i := range ints {
         if i.Name == name {
             ifi = &i
+            break
         }
     }
 
