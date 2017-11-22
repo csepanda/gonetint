@@ -19,8 +19,12 @@ func (api *ApiController) GetVersion() string {
 
 func (api *ApiController) Init(router *mux.Router) error {
     api.root = router.PathPrefix("/" + VERSION).Subrouter()
-    api.root.Path("/interfaces").HandlerFunc(interfaceList)
-    api.root.Path("/interface/{name}").HandlerFunc(interfaceDetails)
+    api.root.Methods("GET").
+             Path("/interfaces").
+             HandlerFunc(interfaceList)
+    api.root.Methods("GET").
+             Path("/interface/{name}").
+             HandlerFunc(interfaceDetails)
     return nil
 }
 
