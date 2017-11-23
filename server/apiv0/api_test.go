@@ -8,6 +8,7 @@ import (
     "net/http/httptest"
     "encoding/json"
     "github.com/gorilla/mux"
+    "github.com/csepanda/gonetint/domain/rv0"
 )
 
 func TestInterfaceListRequest(t *testing.T) {
@@ -28,7 +29,7 @@ func TestInterfaceListRequest(t *testing.T) {
     buf.ReadFrom(resp.Body)
 
 
-    var actual interfaceListResponse
+    var actual rv0.InterfaceListResponse
     jsonErr := json.Unmarshal(buf.Bytes(), &actual)
     if jsonErr != nil {
         t.Fatalf("Couldn't parse json from response %#v\n", jsonErr)
@@ -70,7 +71,7 @@ func TestInterfaceDetailsRequest(t *testing.T) {
         buf := new(bytes.Buffer)
         buf.ReadFrom(resp.Body)
 
-        var actual interfaceResponse;
+        var actual rv0.InterfaceResponse;
         jsonErr := json.Unmarshal(buf.Bytes(), &actual)
         if jsonErr != nil {
             t.Fatalf("Couldn't parse json from response %#v\n", jsonErr)

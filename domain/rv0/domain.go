@@ -1,7 +1,9 @@
-package apiv0
+package rv0
+/*  Response domain protocol for API major version 0.
+    General domain types to unify server-client communication */
 
 // details of specified interface
-type interfaceResponse struct {
+type InterfaceResponse struct {
     Name           string
     Hw_address     string
     Inet_address []string
@@ -9,6 +11,7 @@ type interfaceResponse struct {
 }
 
 // list of network interfaces list
-type interfaceListResponse struct {
+type InterfaceListResponse struct {
     Interfaces []string
 }
+

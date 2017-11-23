@@ -1,12 +1,15 @@
 package apiv0
 
-import "net"
+import (
+    "net"
+    "github.com/csepanda/gonetint/domain/rv0"
+)
 
-func getInterfacesNames() (interfaceListResponse, error) {
+func getInterfacesNames() (rv0.InterfaceListResponse, error) {
     ints, err := net.Interfaces()
 
     if err != nil {
-        return interfaceListResponse{}, serverError(err.Error())
+        return rv0.InterfaceListResponse{}, serverError(err.Error())
     }
 
     names := make([]string, len(ints))
@@ -15,14 +18,14 @@ func getInterfacesNames() (interfaceListResponse, error) {
         names[i] = v.Name
     }
 
-    return interfaceListResponse{names}, nil
+    return rv0.InterfaceListResponse{names}, nil
 }
 
-func getInterfaceDetails(name string) (interfaceResponse, error) {
+func getInterfaceDetails(name string) (rv0.InterfaceResponse, error) {
     ints, err := net.Interfaces()
 
     if err != nil {
-        return interfaceResponse{}, serverError(err.Error())
+        return rv0.InterfaceResponse{}, serverError(err.Error())
     }
 
     var ifi *net.Interface
@@ -35,15 +38,15 @@ func getInterfaceDetails(name string) (interfaceResponse, error) {
 
     if ifi == nil {
         message := "interface " + name + " was not found"
-        return interfaceResponse{}, clientError(message)
+        return rv0.InterfaceResponse{}, clientError(message)
     }
 
     addrs, err := getInterfaceAddressList(ifi)
     if err != nil {
-        return interfaceResponse{}, serverError(err.Error())
+        return rv0.InterfaceResponse{}, serverError(err.Error())
     }
 
-    return interfaceResponse{
+    return rv0.InterfaceResponse{
         Name:         name,
         Hw_address:   ifi.HardwareAddr.String(),
         Inet_address: addrs,
