@@ -3,9 +3,12 @@ package main
 import (
     "os"
     "fmt"
+    "net"
     "flag"
-    "strconv"
+    "bytes"
     "errors"
+    "strconv"
+    "github.com/csepanda/gonetint/domain/rv0"
 )
 
 const (
@@ -61,12 +64,25 @@ func main() {
 
             fmt.Println("")
         case "show":
-            details, err := fetchDetails(parsed.server, parsed.port)
-            if err != nil {
-                printErr(err.Error())
-                os.Exit(1)
+            if showCmd, ok := parsed.cmd.(showCommand); ok {
+                address := "http://" + parsed.server + ":" + strconv.Itoa(parsed.port)
+                details, err := fetchDetails(address, showCmd.interfaceName)
+                if err != nil {
+                    printErr(err.Error())
+                    os.Exit(1)
+                }
+
+                str, err := detailsToString(details)
+                if err != nil {
+                    printErr(err.Error())
+                    os.Exit(1)
+                }
+
+                fmt.Println(str)
+            } else {
+                printErr(FATAL_ERROR)
+                os.Exit(13)
             }
-            fmt.Println(details)
     }
 
 }
@@ -133,3 +149,36 @@ func printErr(message string) {
     os.Stderr.WriteString(message)
 }
 
+func detailsToString(ifi rv0.InterfaceResponse) (string, error) {
+    var buffer bytes.Buffer
+
+    buffer.WriteString(ifi.Name)
+    buffer.WriteString(":\n\tHw_address: ")
+    buffer.WriteString(ifi.Hw_address)
+
+    for _, addr := range ifi.Inet_address {
+        ip, nw, err := net.ParseCIDR(addr)
+
+        if err != nil {
+            return "", err
+        }
+
+        if ip.To4() != nil {
+            mask := fmt.Sprintf("%d.%d.%d.%d",
+                nw.Mask[0], nw.Mask[1], nw.Mask[2], nw.Mask[3])
+            buffer.WriteString("\n\tIPv6: ");
+            buffer.WriteString(ip.String())
+            buffer.WriteString(", mask: ");
+
+            buffer.WriteString(mask)
+        } else {
+            buffer.WriteString("\n\tIPv4: ");
+            buffer.WriteString(addr)
+        }
+    }
+
+    buffer.WriteString("\n\tMTU: ")
+    buffer.WriteString(strconv.Itoa(ifi.MTU))
+
+    return buffer.String(), nil
+}

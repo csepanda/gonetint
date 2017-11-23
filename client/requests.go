@@ -34,7 +34,28 @@ func fetchList(srvAddress string) (rv0.InterfaceListResponse, error) {
     return list, nil
 }
 
-func fetchDetails(host string, port int) (rv0.InterfaceResponse, error) {
-    return rv0.InterfaceResponse{}, nil
-}
+func fetchDetails(srvAddress string, name string) (rv0.InterfaceResponse, error) {
+    url := srvAddress + "/" + VERSION + "/interface/" + name
+    resp, err := http.DefaultClient.Get(url)
 
+    if err != nil {
+        return rv0.InterfaceResponse{}, err
+    }
+
+    defer resp.Body.Close()
+
+    buf := new(bytes.Buffer)
+    buf.ReadFrom(resp.Body)
+
+    if resp.StatusCode != 200 {
+        return rv0.InterfaceResponse{}, errors.New(buf.String())
+    }
+
+    var info rv0.InterfaceResponse
+    jsonErr := json.Unmarshal(buf.Bytes(), &info)
+    if jsonErr != nil {
+        return rv0.InterfaceResponse{}, jsonErr
+    }
+
+    return info, nil
+}
