@@ -38,18 +38,20 @@ func main() {
     }
 
     switch parsed.cmd {
-        case list:
+        case "list":
             list, err := fetchList(parsed.server, parsed.port)
             if err != nil {
                 printErr(err.Error())
                 os.Exit(1)
             }
-        case show:
+            fmt.Println(list)
+        case "show":
             details, err := fetchDetails(parsed.server, parsed.port)
             if err != nil {
                 printErr(err.Error())
                 os.Exit(1)
             }
+            fmt.Println(details)
     }
 
 }
