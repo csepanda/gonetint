@@ -14,7 +14,7 @@ script:
 after_success:
     - export TAG=`if [[ $TRAVIS_PULL_REQUEST == "false" ]] && [[ $TRAVIS_BRANCH == "master" ]]; then echo "latest"; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi`
     - export REPO=csepanda/gonetint
-    - docker build -t $REPO:$TAG .
+    - docker build -t $REPO:${TAG:-$TRAVIS_BRANCH} .
     - docker login -u $DOCKER_USER -p $DOCKER_PASS
     - if [[ $TRAVIS_PULL_REQUEST == "false" ]] && [[ $TRAVIS_BRANCH == "master" ]]; then
         docker tag $REPO:$TAG $REPO:$TRAVIS_BUILD_NUMBER;
