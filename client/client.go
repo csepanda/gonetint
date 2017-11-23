@@ -4,6 +4,7 @@ import (
     "os"
     "fmt"
     "flag"
+    "strconv"
 )
 
 const (
@@ -39,12 +40,18 @@ func main() {
 
     switch parsed.cmd {
         case "list":
-            list, err := fetchList(parsed.server, parsed.port)
+            address := "http://" + parsed.server + ":" + strconv.Itoa(parsed.port)
+            list, err := fetchList(address)
             if err != nil {
                 printErr(err.Error())
                 os.Exit(1)
             }
-            fmt.Println(list)
+
+            for _, ifi := range list.Interfaces {
+                fmt.Print(ifi, " ")
+            }
+
+            fmt.Println("")
         case "show":
             details, err := fetchDetails(parsed.server, parsed.port)
             if err != nil {
