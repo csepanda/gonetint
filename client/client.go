@@ -10,6 +10,7 @@ const (
     VERSION       = "v0.1"
     PRINT_VERSION = 0xDEAD
     EXECUTE_CMD   = 0xBEAF
+    NO_ARG_FAIL   = -1
 )
 
 type actionType int
@@ -24,21 +25,38 @@ type parsedOptions struct {
 func main() {
     parsed := parseArgs()
 
-    if parsed.action == PRINT_VERSION {
-        fmt.Println(VERSION_STRING)
-        return
+    switch {
+        case parsed.action == NO_ARG_FAIL:
+            printErr(NO_ARGS_ERROR)
+            os.Exit(2)
+        case parsed.action == EXECUTE_CMD && parsed.cmd == "":
+            printErr(NO_CMD_ERROR)
+            os.Exit(3)
+        case parsed.action == PRINT_VERSION:
+            fmt.Println(VERSION_STRING)
+            return
     }
 
-    if parsed.cmd == "" {
-        printErr(NO_CMD_ERROR)
-        os.Exit(3)
+    switch parsed.cmd {
+        case list:
+            list, err := fetchList(parsed.server, parsed.port)
+            if err != nil {
+                printErr(err.Error())
+                os.Exit(1)
+            }
+        case show:
+            details, err := fetchDetails(parsed.server, parsed.port)
+            if err != nil {
+                printErr(err.Error())
+                os.Exit(1)
+            }
     }
+
 }
 
 func parseArgs() parsedOptions {
     if len(os.Args) == 1 {
-        printErr(NO_ARGS_ERROR)
-        os.Exit(2)
+        return parsedOptions{action: NO_ARG_FAIL}
     }
 
     serverPtr  := flag.String ("server",  "127.1", "")
