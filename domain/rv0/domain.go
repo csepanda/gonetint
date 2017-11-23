@@ -15,3 +15,6 @@ type InterfaceListResponse struct {
     Interfaces []string
 }
 
+type ErrorResponse struct {
+    Error string
+}
