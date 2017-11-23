@@ -10,3 +10,15 @@ script:
     - go build -o net_server ./server
     - go build -o net_client ./client
     - sh ./system-test.sh
+
+after_success:
+    - TAG=`if [[ $TRAVIS_PULL_REQUEST == "false" ]] && [[ $TRAVIS_BRANCH == "master" ]]; then echo "latest"; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi`
+    - export TAG=${TAG:-$TRAVIS_BRANCH}
+    - export REPO=csepanda/gonetint
+    - docker build -t $REPO:$TAG .
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - if [[ $TRAVIS_PULL_REQUEST == "false" ]] && [[ $TRAVIS_BRANCH == "master" ]]; then
+        docker tag $REPO:$TAG $REPO:$TRAVIS_BUILD_NUMBER;
+        docker push $REPO:$TRAVIS_BUILD_NUMBER;
+      fi
+    - docker push $REPO:$TAG
