@@ -5,6 +5,7 @@ import (
     "fmt"
     "flag"
     "strconv"
+    "errors"
 )
 
 const (
@@ -12,12 +13,16 @@ const (
     PRINT_VERSION = 0xDEAD
     EXECUTE_CMD   = 0xBEAF
     NO_ARG_FAIL   = -1
+    NO_CMD_FAIL   = -2
+    CMD_USE_FAIL  = -3
 )
 
 type actionType int
 type parsedOptions struct {
     action actionType
-    cmd    string
+    cmd    command
+
+    err    error
 
     server string
     port   int
@@ -30,15 +35,18 @@ func main() {
         case parsed.action == NO_ARG_FAIL:
             printErr(NO_ARGS_ERROR)
             os.Exit(2)
-        case parsed.action == EXECUTE_CMD && parsed.cmd == "":
+        case parsed.action == NO_CMD_FAIL:
             printErr(NO_CMD_ERROR)
             os.Exit(3)
+        case parsed.action == CMD_USE_FAIL:
+            printErr(parsed.err.Error())
+            os.Exit(4)
         case parsed.action == PRINT_VERSION:
             fmt.Println(VERSION_STRING)
             return
     }
 
-    switch parsed.cmd {
+    switch parsed.cmd.GetName() {
         case "list":
             address := "http://" + parsed.server + ":" + strconv.Itoa(parsed.port)
             list, err := fetchList(address)
@@ -68,10 +76,9 @@ func parseArgs() parsedOptions {
         return parsedOptions{action: NO_ARG_FAIL}
     }
 
-    serverPtr  := flag.String ("server",  "127.1", "")
-    portPtr    := flag.Int    ("port",    8080,    "")
-    cmdPtr     := flag.String ("cmd",     "",      "")
-    versionPtr := flag.Bool   ("version", false,   "")
+    serverPtr  := flag.String ("server",  "localhost", "")
+    portPtr    := flag.Int    ("port",    8080,        "")
+    versionPtr := flag.Bool   ("version", false,       "")
 
     flag.Usage = usage
     flag.Parse()
@@ -80,7 +87,42 @@ func parseArgs() parsedOptions {
         return parsedOptions{ action: PRINT_VERSION }
     }
 
-    return parsedOptions{EXECUTE_CMD, *cmdPtr, *serverPtr, *portPtr }
+    args      := os.Args[1:]
+    argsCount := len(args)
+    var cmd command
+    var err error
+    for i, arg := range args {
+        switch arg {
+            case "list":
+                if i != argsCount - 1 {
+                    return parsedOptions{
+                        action: CMD_USE_FAIL,
+                        err: errors.New(ACCEPT_NO_ARGS_ERROR),
+                    }
+                } else {
+                    cmd = listCommand{}
+                }
+            case "show":
+                cmd, err = parseShowCommand(args[i + 1:])
+                break
+        }
+    }
+
+    if err != nil {
+        return parsedOptions{action: CMD_USE_FAIL, err: err}
+    } else if cmd == nil {
+        return parsedOptions{ action: NO_CMD_FAIL }
+    }
+
+    return parsedOptions{EXECUTE_CMD, cmd, nil, *serverPtr, *portPtr }
+}
+
+func parseShowCommand(args []string) (command, error) {
+    if len(args) != 1 {
+        return nil, errors.New(NO_IFI_ERROR)
+    }
+
+    return showCommand{args[0]}, nil
 }
 
 func usage() {
