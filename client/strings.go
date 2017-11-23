@@ -27,7 +27,18 @@ COMMANDS:
         List all system network interfaces
     show
         Shows detailed interface info 
+
+EXIT_STATUS:
+    0 - success
+    1 - execution error
+    2 - no arguments specified
+    3 - no command specified
 `
     VERSION_STRING = "cli_net " + VERSION
+
+    /* Error strings */
+    NO_ARGS_ERROR = "Error: no arguments specified\n"
+    NO_CMD_ERROR  = "Error: nothing to execute\n"
+
 )
 

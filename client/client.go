@@ -30,13 +30,14 @@ func main() {
     }
 
     if parsed.cmd == "" {
-        printErr("No command to execute specified\n")
+        printErr(NO_CMD_ERROR)
+        os.Exit(3)
     }
 }
 
 func parseArgs() parsedOptions {
     if len(os.Args) == 1 {
-        printErr("Error: no arguments specified\n")
+        printErr(NO_ARGS_ERROR)
         os.Exit(2)
     }
 
