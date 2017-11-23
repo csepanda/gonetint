@@ -5,6 +5,7 @@ import (
     "net/http"
     "encoding/json"
     "github.com/gorilla/mux"
+    "github.com/csepanda/gonetint/domain/rv0"
 )
 
 const VERSION = "v0.1"
@@ -66,6 +67,15 @@ func interfaceDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 func responseError(e error, w http.ResponseWriter) {
+    errorResponse := rv0.ErrorResponse{e.Error()}
+    jsonStr, err := json.Marshal(errorResponse)
+
+    if err != nil {
+        w.WriteHeader(500);
+        fmt.Fprintf(w, "{\"Error\":\"%s\"}", err.Error())
+        return
+    }
+
     if serviceErr, ok := e.(*serviceError); ok {
         switch serviceErr.errType {
             case SERVER_SIDE_ERROR:    w.WriteHeader(500)
@@ -75,5 +85,6 @@ func responseError(e error, w http.ResponseWriter) {
         w.WriteHeader(500);
     }
 
-    fmt.Fprintf(w, "{\"error\":\"%s\"}", e.Error())
+    w.Write(jsonStr)
 }
+
