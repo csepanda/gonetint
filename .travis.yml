@@ -1,2 +1,5 @@
 language: go
+go: 
+    - 1.7.x
+
 script: go get github.com/gorilla/mux && go test server/apiv0
