@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "log"
+    "flag"
     "net/http"
     "github.com/gorilla/mux"
     "github.com/csepanda/gonetint/server/apiv0"
@@ -20,6 +21,8 @@ func version(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    portPtr := flag.String("port", "8080", "port")
+    flag.Parse()
     router := mux.NewRouter().StrictSlash(true)
     router.Methods("GET").
            Path("/version").
@@ -32,7 +35,7 @@ func main() {
         "application/json;charset=UTF-8",
     })
 
-    log.Fatal(http.ListenAndServe(":9000", handler))
+    log.Fatal(http.ListenAndServe(":" + *portPtr, handler))
 }
 
 // Presets headers via handler wrapper
