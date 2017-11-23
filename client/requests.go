@@ -22,7 +22,14 @@ func fetchList(srvAddress string) (rv0.InterfaceListResponse, error) {
     buf.ReadFrom(resp.Body)
 
     if resp.StatusCode != 200 {
-        return rv0.InterfaceListResponse{}, errors.New(buf.String())
+        var errResponse rv0.ErrorResponse
+        jsonErr := json.Unmarshal(buf.Bytes(), &errResponse)
+        if jsonErr != nil {
+          return rv0.InterfaceListResponse{}, jsonErr
+        } else {
+          errMsg := "error: " + errResponse.Error + "\n"
+          return rv0.InterfaceListResponse{}, errors.New(errMsg)
+        }
     }
 
     var list rv0.InterfaceListResponse
@@ -48,7 +55,14 @@ func fetchDetails(srvAddress string, name string) (rv0.InterfaceResponse, error)
     buf.ReadFrom(resp.Body)
 
     if resp.StatusCode != 200 {
-        return rv0.InterfaceResponse{}, errors.New(buf.String())
+        var errResponse rv0.ErrorResponse
+        jsonErr := json.Unmarshal(buf.Bytes(), &errResponse)
+        if jsonErr != nil {
+          return rv0.InterfaceResponse{}, jsonErr
+        } else {
+          errMsg := "error: " + errResponse.Error + "\n"
+          return rv0.InterfaceResponse{}, errors.New(errMsg)
+        }
     }
 
     var info rv0.InterfaceResponse
