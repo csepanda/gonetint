@@ -1,3 +1,9 @@
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# 
+# Copyright © 2017 Andrey Bova
+
 echo "Start system test"
 
 is_server_running() { [ `ps aux | grep net_server | wc -l` -eq 2 ]; }
